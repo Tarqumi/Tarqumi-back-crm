@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ClientController;
+use App\Http\Controllers\Api\V1\LandingPageController;
 use App\Http\Controllers\Api\V1\PermissionsController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\TeamController;
@@ -22,6 +23,10 @@ Route::prefix('v1')->group(function () {
     // Authentication
     Route::post('/auth/login', [AuthController::class, 'login'])
         ->middleware('throttle:10,1'); // Rate limit: 10 attempts per minute
+    
+    // Landing Page
+    Route::get('/landing/showcase-projects', [LandingPageController::class, 'showcaseProjects']);
+    Route::get('/landing/company-info', [LandingPageController::class, 'companyInfo']);
 });
 
 // Protected routes (authentication required)
