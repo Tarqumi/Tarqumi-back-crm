@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="D:\hassan usb shm\code\Work\Tarqumi - CRM\backend\phpunit.xml" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="1.832962">
+    <testsuite name="Feature" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="1.832962">
+      <testsuite name="Tests\Feature\ProjectManagementTest" file="D:\hassan usb shm\code\Work\Tarqumi - CRM\backend\tests\Feature\ProjectManagementTest.php" tests="1" assertions="1" errors="0" failures="1" skipped="0" time="1.832962">
+        <testcase name="admin_can_create_project_with_multiple_clients" file="D:\hassan usb shm\code\Work\Tarqumi - CRM\backend\tests\Feature\ProjectManagementTest.php" line="49" class="Tests\Feature\ProjectManagementTest" classname="Tests.Feature.ProjectManagementTest" assertions="1" time="1.832962">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">Tests\Feature\ProjectManagementTest::admin_can_create_project_with_multiple_clients&#13;
+Expected response status code [201] but received 500.
+Failed asserting that 500 is identical to 201.
+&#13;
+D:\hassan usb shm\code\Work\Tarqumi - CRM\backend\vendor\laravel\framework\src\Illuminate\Testing\TestResponseAssert.php:45
+D:\hassan usb shm\code\Work\Tarqumi - CRM\backend\vendor\laravel\framework\src\Illuminate\Testing\TestResponse.php:160
+D:\hassan usb shm\code\Work\Tarqumi - CRM\backend\tests\Feature\ProjectManagementTest.php:64</failure>
+        </testcase>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>
