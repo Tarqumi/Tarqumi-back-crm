@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'nextjs' => [
+        'revalidate_url' => env('NEXTJS_REVALIDATE_URL', 'http://localhost:3000/api/revalidate'),
+        'revalidation_secret' => env('NEXTJS_REVALIDATION_SECRET'),
+    ],
+
 ];

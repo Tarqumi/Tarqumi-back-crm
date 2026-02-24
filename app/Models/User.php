@@ -125,6 +125,12 @@ class User extends Authenticatable
                ($this->is_founder && $this->founder_role === FounderRole::CTO->value);
     }
 
+    public function getCanViewContactSubmissionsAttribute(): bool
+    {
+        return $this->is_admin ||
+               ($this->is_founder && $this->founder_role === FounderRole::CTO);
+    }
+
     /**
      * Get all permissions for the authenticated user.
      * Used by PermissionsController to return to frontend.
