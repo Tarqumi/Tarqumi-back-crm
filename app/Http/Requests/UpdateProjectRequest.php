@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ProjectStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,7 +27,7 @@ class UpdateProjectRequest extends FormRequest
             'start_date' => ['sometimes', 'date'],
             'end_date' => ['nullable', 'date', 'after:start_date'],
             'estimated_hours' => ['nullable', 'numeric', 'min:0', 'max:100000'],
-            'status' => ['sometimes', Rule::in(['planning', 'analysis', 'design', 'implementation', 'testing', 'deployment'])],
+            'status' => ['sometimes', Rule::enum(ProjectStatus::class)],
             'is_active' => ['boolean'],
         ];
     }
@@ -44,6 +45,7 @@ class UpdateProjectRequest extends FormRequest
             'priority.max' => 'Priority must be between 1 and 10',
             'end_date.after' => 'End date must be after start date',
             'currency.required_with' => 'Currency is required when budget is set',
+            'status.enum' => 'Status must be one of: planning, analysis, design, implementation, testing, deployment',
         ];
     }
 }

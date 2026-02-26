@@ -26,7 +26,7 @@ class SeoSettingController extends Controller
         if (!$seoSetting) {
             return response()->json([
                 'success' => false,
-                'message' => 'SEO settings not found for this page',
+                'message' => __('cms.not_found'),
             ], 404);
         }
 
@@ -97,7 +97,7 @@ class SeoSettingController extends Controller
         return response()->json([
             'success' => true,
             'data' => $seoSetting,
-            'message' => 'SEO settings updated successfully',
+            'message' => __('cms.seo_updated'),
         ]);
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\ClientController;
 use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\Api\V1\LandingPageController;
 use App\Http\Controllers\Api\V1\PageContentController;
+use App\Http\Controllers\Api\V1\PasswordResetController;
 use App\Http\Controllers\Api\V1\PermissionsController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\SeoSettingController;
@@ -31,6 +32,12 @@ Route::prefix('v1')->group(function () {
     // Authentication
     Route::post('/auth/login', [AuthController::class, 'login'])
         ->middleware('throttle:10,1'); // Rate limit: 10 attempts per minute
+    
+    // Password Reset
+    Route::post('/password/forgot', [PasswordResetController::class, 'forgot'])
+        ->middleware('throttle:5,1'); // Rate limit: 5 attempts per minute
+    Route::post('/password/reset', [PasswordResetController::class, 'reset'])
+        ->middleware('throttle:5,1'); // Rate limit: 5 attempts per minute
     
     // Landing Page
     Route::get('/landing/showcase-projects', [LandingPageController::class, 'showcaseProjects']);
@@ -118,12 +125,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'update.last.active'])->group(f
     });
     
     // Landing Page CMS (Admin, Super Admin, CTO)
-    Route::middleware(function ($request, $next) {
-        if (!$request->user()->canEditLandingPage()) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
-        }
-        return $next($request);
-    })->group(function () {
+    Route::middleware('can.edit.landing')->group(function () {
         // Services Management
         Route::get('/cms/services', [ServiceController::class, 'index']);
         Route::post('/cms/services', [ServiceController::class, 'store']);
@@ -170,12 +172,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'update.last.active'])->group(f
     });
     
     // Contact Submissions Management (Admin, Super Admin, CTO)
-    Route::middleware(function ($request, $next) {
-        if (!$request->user()->canViewContactSubmissions()) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
-        }
-        return $next($request);
-    })->group(function () {
+    Route::middleware('can.view.contact')->group(function () {
         Route::get('/contact/submissions', [ContactController::class, 'index']);
         Route::get('/contact/submissions/statistics', [ContactController::class, 'statistics']);
         Route::get('/contact/submissions/{contactSubmission}', [ContactController::class, 'show']);

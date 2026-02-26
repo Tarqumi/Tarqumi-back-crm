@@ -47,7 +47,7 @@ class ServiceController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ServiceResource($service),
-                'message' => 'Service created successfully',
+                'message' => __('cms.service_created'),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -73,7 +73,7 @@ class ServiceController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ServiceResource($updatedService),
-                'message' => 'Service updated successfully',
+                'message' => __('cms.service_updated'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -90,7 +90,7 @@ class ServiceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Service deleted successfully',
+                'message' => __('cms.service_deleted'),
             ]);
         } catch (\Exception $e) {
             return response()->json([

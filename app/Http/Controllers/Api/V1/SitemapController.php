@@ -43,12 +43,22 @@ class SitemapController extends Controller
             );
         }
 
-        // Blog posts (published only)
+        // Blog posts (published only) - Generate separate entries for AR and EN
         $blogPosts = BlogPost::published()->get();
         foreach ($blogPosts as $post) {
+            // Arabic blog post URL
             $xml .= $this->generateUrlEntry(
                 "{$baseUrl}/ar/blog/{$post->slug_ar}",
                 "{$baseUrl}/en/blog/{$post->slug_en}",
+                $post->updated_at->toAtomString(),
+                'weekly',
+                '0.7'
+            );
+            
+            // English blog post URL
+            $xml .= $this->generateUrlEntry(
+                "{$baseUrl}/en/blog/{$post->slug_en}",
+                "{$baseUrl}/ar/blog/{$post->slug_ar}",
                 $post->updated_at->toAtomString(),
                 'weekly',
                 '0.7'

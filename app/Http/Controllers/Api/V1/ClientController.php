@@ -44,7 +44,7 @@ class ClientController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ClientResource($client),
-                'message' => 'Client created successfully',
+                'message' => __('client.created'),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -73,7 +73,7 @@ class ClientController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ClientResource($updatedClient),
-                'message' => 'Client updated successfully',
+                'message' => __('client.updated'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -90,7 +90,7 @@ class ClientController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Client deleted successfully',
+                'message' => __('client.deleted'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -108,7 +108,7 @@ class ClientController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ClientResource($client->fresh()),
-                'message' => 'Client restored successfully',
+                'message' => __('client.restored'),
             ]);
         } catch (\Exception $e) {
             return response()->json([

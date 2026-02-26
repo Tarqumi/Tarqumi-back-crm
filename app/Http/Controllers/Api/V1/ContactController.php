@@ -27,7 +27,7 @@ class ContactController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Thank you for contacting us. We will get back to you soon.',
+                'message' => __('contact.submitted'),
                 'data' => [
                     'id' => $submission->id,
                     'submitted_at' => $submission->submitted_at->toIso8601String(),
@@ -100,7 +100,7 @@ class ContactController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ContactSubmissionResource($contactSubmission->fresh()),
-                'message' => 'Status updated successfully',
+                'message' => __('contact.status_updated'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -120,7 +120,7 @@ class ContactController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Marked as spam successfully',
+                'message' => __('contact.marked_spam'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -140,7 +140,7 @@ class ContactController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Submission deleted successfully',
+                'message' => __('contact.deleted'),
             ]);
         } catch (\Exception $e) {
             return response()->json([

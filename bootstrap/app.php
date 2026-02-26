@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\CanEditLandingPage;
+use App\Http\Middleware\CanViewContactSubmissions;
 use App\Http\Middleware\FounderRoleMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\UpdateLastActive;
@@ -19,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'founder.role' => FounderRoleMiddleware::class,
             'update.last.active' => UpdateLastActive::class,
+            'can.edit.landing' => CanEditLandingPage::class,
+            'can.view.contact' => CanViewContactSubmissions::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

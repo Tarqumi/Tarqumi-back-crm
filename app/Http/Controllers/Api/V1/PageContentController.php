@@ -93,7 +93,7 @@ class PageContentController extends Controller
         return response()->json([
             'success' => true,
             'data' => $content,
-            'message' => 'Content updated successfully',
+            'message' => __('cms.content_updated'),
         ]);
     }
 
@@ -143,7 +143,7 @@ class PageContentController extends Controller
         return response()->json([
             'success' => true,
             'data' => $updated,
-            'message' => 'Contents updated successfully',
+            'message' => __('cms.content_updated'),
         ]);
     }
 }

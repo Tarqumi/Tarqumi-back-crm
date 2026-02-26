@@ -19,13 +19,13 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'email' => [__('auth.failed')],
             ]);
         }
 
         if (!$user->is_active) {
             throw ValidationException::withMessages([
-                'email' => ['Your account has been deactivated. Contact administrator.'],
+                'email' => [__('auth.inactive')],
             ]);
         }
 
@@ -44,7 +44,7 @@ class AuthController extends Controller
                 'user' => new UserResource($user),
                 'token' => $token,
             ],
-            'message' => 'Login successful',
+            'message' => __('auth.success'),
         ]);
     }
 
@@ -57,7 +57,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Logged out successfully',
+            'message' => __('auth.logout_success'),
         ]);
     }
 
@@ -86,7 +86,7 @@ class AuthController extends Controller
             'data' => [
                 'token' => $token,
             ],
-            'message' => 'Token refreshed successfully',
+            'message' => __('auth.token_refreshed'),
         ]);
     }
 }

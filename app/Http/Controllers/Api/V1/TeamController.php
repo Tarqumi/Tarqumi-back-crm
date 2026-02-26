@@ -45,7 +45,7 @@ class TeamController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new UserResource($user),
-                'message' => 'Team member created successfully',
+                'message' => __('team.created'),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -73,7 +73,7 @@ class TeamController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new UserResource($updatedUser),
-                'message' => 'Team member updated successfully',
+                'message' => __('team.updated'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -93,7 +93,7 @@ class TeamController extends Controller
                 if (!$request->has('new_manager_id')) {
                     return response()->json([
                         'success' => false,
-                        'message' => "Cannot delete team member. They are managing {$managedProjects} projects. Please provide new_manager_id for reassignment.",
+                        'message' => __('team.must_reassign_projects'),
                         'managed_projects_count' => $managedProjects,
                     ], 422);
                 }
@@ -106,7 +106,7 @@ class TeamController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Team member deleted successfully',
+                'message' => __('team.deleted'),
                 'reassigned_projects' => $reassignedCount ?? 0,
             ]);
         } catch (\Exception $e) {

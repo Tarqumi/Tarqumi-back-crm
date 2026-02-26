@@ -119,7 +119,7 @@ class ContactService
         $recipients = EmailRecipient::active()->immediate()->get();
 
         foreach ($recipients as $recipient) {
-            EmailQueue::create([
+            $emailQueue = EmailQueue::create([
                 'to_email' => $recipient->email,
                 'to_name' => $recipient->name,
                 'from_email' => config('mail.from.address'),
@@ -130,6 +130,9 @@ class ContactService
                 'status' => 'pending',
                 'contact_submission_id' => $submission->id,
             ]);
+
+            // Dispatch job to send email
+            \App\Jobs\SendQueuedEmail::dispatch($emailQueue);
         }
     }
 

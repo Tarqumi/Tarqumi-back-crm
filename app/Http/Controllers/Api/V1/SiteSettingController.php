@@ -38,7 +38,7 @@ class SiteSettingController extends Controller
         if (!$setting) {
             return response()->json([
                 'success' => false,
-                'message' => 'Setting not found',
+                'message' => __('cms.not_found'),
             ], 404);
         }
 
@@ -81,7 +81,7 @@ class SiteSettingController extends Controller
         return response()->json([
             'success' => true,
             'data' => $setting,
-            'message' => 'Setting updated successfully',
+            'message' => __('cms.setting_updated'),
         ]);
     }
 
@@ -124,7 +124,7 @@ class SiteSettingController extends Controller
         return response()->json([
             'success' => true,
             'data' => $updated,
-            'message' => 'Settings updated successfully',
+            'message' => __('cms.setting_updated'),
         ]);
     }
 }

@@ -44,7 +44,7 @@ class BlogPostController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new BlogPostResource($post),
-                'message' => 'Blog post created successfully',
+                'message' => __('blog.created'),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -72,7 +72,7 @@ class BlogPostController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new BlogPostResource($updatedPost),
-                'message' => 'Blog post updated successfully',
+                'message' => __('blog.updated'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -89,7 +89,7 @@ class BlogPostController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Blog post deleted successfully',
+                'message' => __('blog.deleted'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -107,7 +107,7 @@ class BlogPostController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new BlogPostResource($blogPost->fresh(['category', 'author', 'tags'])),
-                'message' => 'Blog post restored successfully',
+                'message' => __('blog.restored'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -125,7 +125,7 @@ class BlogPostController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new BlogPostResource($blogPost->fresh()),
-                'message' => 'Blog post published successfully',
+                'message' => __('blog.published'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -143,7 +143,7 @@ class BlogPostController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new BlogPostResource($blogPost->fresh()),
-                'message' => 'Blog post scheduled successfully',
+                'message' => __('blog.scheduled'),
             ]);
         } catch (\Exception $e) {
             return response()->json([

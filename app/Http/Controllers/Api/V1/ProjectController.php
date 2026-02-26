@@ -44,7 +44,7 @@ class ProjectController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ProjectResource($project),
-                'message' => 'Project created successfully',
+                'message' => __('project.created'),
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -72,7 +72,7 @@ class ProjectController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ProjectResource($updatedProject),
-                'message' => 'Project updated successfully',
+                'message' => __('project.updated'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -89,7 +89,7 @@ class ProjectController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Project deleted successfully',
+                'message' => __('project.deleted'),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -107,7 +107,7 @@ class ProjectController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => new ProjectResource($project->fresh(['clients', 'manager'])),
-                'message' => 'Project restored successfully',
+                'message' => __('project.restored'),
             ]);
         } catch (\Exception $e) {
             return response()->json([

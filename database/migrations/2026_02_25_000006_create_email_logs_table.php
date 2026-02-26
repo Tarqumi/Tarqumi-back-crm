@@ -15,7 +15,8 @@ return new class extends Migration
             $table->enum('status', ['sent', 'failed'])->default('sent');
             $table->text('error_message')->nullable();
             $table->timestamp('sent_at')->useCurrent();
-            $table->foreignId('email_queue_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedBigInteger('email_queue_id')->nullable();
+            $table->foreign('email_queue_id')->references('id')->on('email_queue')->nullOnDelete();
             $table->timestamps();
             
             $table->index('to_email');

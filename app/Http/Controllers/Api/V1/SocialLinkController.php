@@ -66,7 +66,7 @@ class SocialLinkController extends Controller
         if ($exists) {
             return response()->json([
                 'success' => false,
-                'message' => 'Social link for this platform already exists',
+                'message' => __('cms.social_link_exists'),
             ], 422);
         }
 
@@ -78,7 +78,7 @@ class SocialLinkController extends Controller
         return response()->json([
             'success' => true,
             'data' => $link,
-            'message' => 'Social link created successfully',
+            'message' => __('cms.social_link_created'),
         ], 201);
     }
 
@@ -109,7 +109,7 @@ class SocialLinkController extends Controller
         return response()->json([
             'success' => true,
             'data' => $socialLink,
-            'message' => 'Social link updated successfully',
+            'message' => __('cms.social_link_updated'),
         ]);
     }
 
@@ -125,7 +125,7 @@ class SocialLinkController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Social link deleted successfully',
+            'message' => __('cms.social_link_deleted'),
         ]);
     }
 
@@ -158,7 +158,7 @@ class SocialLinkController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Social links reordered successfully',
+            'message' => __('cms.social_link_updated'),
         ]);
     }
 }
