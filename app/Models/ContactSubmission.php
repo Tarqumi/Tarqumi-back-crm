@@ -4,42 +4,38 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContactSubmission extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
         'email',
         'phone',
-        'message',
         'subject',
-        'status',
+        'message',
         'ip_address',
         'user_agent',
-        'submitted_at',
-        'read_at',
-        'read_by',
-        'admin_notes',
+        'status',
+        'language',
+        'email_sent_at',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'submitted_at' => 'datetime',
-            'read_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'email_sent_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes
-    |--------------------------------------------------------------------------
-    */
+    protected $attributes = [
+        'status' => 'new',
+        'language' => 'en',
+    ];
 
+    // Scopes
     public function scopeNew($query)
     {
         return $query->where('status', 'new');
@@ -48,6 +44,16 @@ class ContactSubmission extends Model
     public function scopeRead($query)
     {
         return $query->where('status', 'read');
+    }
+
+    public function scopeReplied($query)
+    {
+        return $query->where('status', 'replied');
+    }
+
+    public function scopeArchived($query)
+    {
+        return $query->where('status', 'archived');
     }
 
     public function scopeSpam($query)
@@ -60,64 +66,19 @@ class ContactSubmission extends Model
         return $query->where('status', '!=', 'spam');
     }
 
-    public function scopeRecent($query)
+    // Accessors
+    public function getIsNewAttribute(): bool
     {
-        return $query->orderBy('submitted_at', 'desc');
+        return $this->status === 'new';
     }
 
-    public function scopeSearch($query, string $search)
+    public function getIsReadAttribute(): bool
     {
-        return $query->where(function ($q) use ($search) {
-            $q->where('name', 'like', "%{$search}%")
-              ->orWhere('email', 'like', "%{$search}%")
-              ->orWhere('message', 'like', "%{$search}%")
-              ->orWhere('subject', 'like', "%{$search}%");
-        });
+        return $this->status === 'read';
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relationships
-    |--------------------------------------------------------------------------
-    */
-
-    public function reader(): BelongsTo
+    public function getMessagePreviewAttribute(): string
     {
-        return $this->belongsTo(User::class, 'read_by');
-    }
-
-    public function emailQueue(): HasMany
-    {
-        return $this->hasMany(EmailQueue::class);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Methods
-    |--------------------------------------------------------------------------
-    */
-
-    public function markAsRead(?int $userId = null): void
-    {
-        $this->update([
-            'status' => 'read',
-            'read_at' => now(),
-            'read_by' => $userId,
-        ]);
-    }
-
-    public function markAsSpam(): void
-    {
-        $this->update(['status' => 'spam']);
-    }
-
-    public function markAsReplied(): void
-    {
-        $this->update(['status' => 'replied']);
-    }
-
-    public function archive(): void
-    {
-        $this->update(['status' => 'archived']);
+        return substr($this->message, 0, 100) . (strlen($this->message) > 100 ? '...' : '');
     }
 }

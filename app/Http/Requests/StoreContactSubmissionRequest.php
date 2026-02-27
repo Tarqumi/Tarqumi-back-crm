@@ -15,12 +15,12 @@ class StoreContactSubmissionRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'min:2', 'max:100'],
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['required', 'email:rfc', 'max:255'],
             'phone' => ['nullable', 'string', 'max:20'],
-            'message' => ['required', 'string', 'min:10', 'max:5000'],
-            'subject' => ['nullable', 'string', 'max:200'],
-            // Honeypot field (should be empty)
-            'website' => ['nullable', 'max:0'],
+            'subject' => ['nullable', 'string', 'max:150'],
+            'message' => ['required', 'string', 'min:10', 'max:2000'],
+            'privacy_accepted' => ['required', 'accepted'],
+            'language' => ['required', 'in:ar,en'],
         ];
     }
 
@@ -32,26 +32,27 @@ class StoreContactSubmissionRequest extends FormRequest
             'name.max' => 'Name cannot exceed 100 characters',
             'email.required' => 'Email is required',
             'email.email' => 'Please enter a valid email address',
+            'phone.max' => 'Phone number cannot exceed 20 characters',
+            'subject.max' => 'Subject cannot exceed 150 characters',
             'message.required' => 'Message is required',
             'message.min' => 'Message must be at least 10 characters',
-            'message.max' => 'Message cannot exceed 5000 characters',
+            'message.max' => 'Message cannot exceed 2000 characters',
+            'privacy_accepted.required' => 'You must accept the privacy policy',
+            'privacy_accepted.accepted' => 'You must accept the privacy policy',
+            'language.required' => 'Language is required',
+            'language.in' => 'Language must be either ar or en',
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        // Normalize email to lowercase
-        if ($this->has('email')) {
-            $this->merge([
-                'email' => strtolower($this->email),
-            ]);
-        }
-
-        // Sanitize message (remove HTML tags)
-        if ($this->has('message')) {
-            $this->merge([
-                'message' => strip_tags($this->message),
-            ]);
-        }
+        // Sanitize inputs
+        $this->merge([
+            'name' => strip_tags($this->name ?? ''),
+            'email' => strtolower(trim($this->email ?? '')),
+            'phone' => $this->phone ? preg_replace('/[^0-9+\-() ]/', '', $this->phone) : null,
+            'subject' => strip_tags($this->subject ?? ''),
+            'message' => strip_tags($this->message ?? ''),
+        ]);
     }
 }

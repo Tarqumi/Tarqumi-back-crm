@@ -54,7 +54,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/social-links', [SocialLinkController::class, 'index']);
     
     // Contact Form (Public with rate limiting)
-    Route::post('/contact', [ContactController::class, 'submit'])
+    Route::post('/contact/submit', [ContactController::class, 'submit'])
         ->middleware('throttle:5,1'); // 5 submissions per minute
 });
 
@@ -174,10 +174,11 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'update.last.active'])->group(f
     // Contact Submissions Management (Admin, Super Admin, CTO)
     Route::middleware('can.view.contact')->group(function () {
         Route::get('/contact/submissions', [ContactController::class, 'index']);
-        Route::get('/contact/submissions/statistics', [ContactController::class, 'statistics']);
-        Route::get('/contact/submissions/{contactSubmission}', [ContactController::class, 'show']);
-        Route::patch('/contact/submissions/{contactSubmission}/status', [ContactController::class, 'updateStatus']);
-        Route::post('/contact/submissions/{contactSubmission}/spam', [ContactController::class, 'markAsSpam']);
-        Route::delete('/contact/submissions/{contactSubmission}', [ContactController::class, 'destroy']);
+        Route::get('/contact/submissions/export', [ContactController::class, 'export']);
+        Route::get('/contact/submissions/{submission}', [ContactController::class, 'show']);
+        Route::patch('/contact/submissions/{submission}/status', [ContactController::class, 'updateStatus']);
+        Route::delete('/contact/submissions/{submission}', [ContactController::class, 'destroy']);
+        Route::post('/contact/submissions/bulk-status', [ContactController::class, 'bulkUpdateStatus']);
+        Route::post('/contact/submissions/bulk-delete', [ContactController::class, 'bulkDelete']);
     });
 });

@@ -27,5 +27,6 @@ class AppServiceProvider extends ServiceProvider
         // Register policies
         Gate::policy(Client::class, ClientPolicy::class);
         Gate::policy(Project::class, ProjectPolicy::class);
+        Gate::policy(\App\Models\ContactSubmission::class, \App\Policies\ContactSubmissionPolicy::class);
     }
 }

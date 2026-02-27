@@ -4,162 +4,202 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreContactSubmissionRequest;
-use App\Http\Requests\IndexContactSubmissionRequest;
 use App\Http\Resources\ContactSubmissionResource;
 use App\Models\ContactSubmission;
 use App\Services\ContactService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class ContactController extends Controller
 {
     public function __construct(
-        private ContactService $contactService
+        protected ContactService $contactService
     ) {}
 
     /**
-     * Submit contact form (Public endpoint with rate limiting)
+     * Submit contact form (public endpoint)
      */
     public function submit(StoreContactSubmissionRequest $request): JsonResponse
     {
-        try {
-            $submission = $this->contactService->submitContactForm($request->validated());
-
-            return response()->json([
-                'success' => true,
-                'message' => __('contact.submitted'),
-                'data' => [
-                    'id' => $submission->id,
-                    'submitted_at' => $submission->submitted_at->toIso8601String(),
-                ],
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to submit contact form. Please try again later.',
-            ], 500);
-        }
-    }
-
-    /**
-     * List contact submissions (Admin only)
-     */
-    public function index(IndexContactSubmissionRequest $request): JsonResponse
-    {
-        $filters = $request->validated();
-        $submissions = $this->contactService->getSubmissions($filters);
+        $submission = $this->contactService->submitContactForm(
+            $request->validated(),
+            $request->ip(),
+            $request->userAgent()
+        );
 
         return response()->json([
             'success' => true,
-            'data' => ContactSubmissionResource::collection($submissions),
+            'message' => 'Thank you! Your message has been sent successfully. We\'ll get back to you soon.',
+            'data' => new ContactSubmissionResource($submission),
+        ], 201);
+    }
+
+    /**
+     * Get all submissions (admin only)
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', ContactSubmission::class);
+
+        $filters = $request->only(['status', 'search', 'date_from', 'date_to', 'language', 'subject']);
+        $perPage = $request->input('per_page', 25);
+
+        $submissions = $this->contactService->getSubmissions($filters, $perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => ContactSubmissionResource::collection($submissions->items()),
             'meta' => [
                 'current_page' => $submissions->currentPage(),
-                'last_page' => $submissions->lastPage(),
                 'per_page' => $submissions->perPage(),
                 'total' => $submissions->total(),
-                'from' => $submissions->firstItem(),
-                'to' => $submissions->lastItem(),
+                'last_page' => $submissions->lastPage(),
+            ],
+            'links' => [
+                'first' => $submissions->url(1),
+                'last' => $submissions->url($submissions->lastPage()),
+                'prev' => $submissions->previousPageUrl(),
+                'next' => $submissions->nextPageUrl(),
             ],
         ]);
     }
 
     /**
-     * Show single submission (Admin only)
+     * Get single submission (admin only)
      */
-    public function show(ContactSubmission $contactSubmission): JsonResponse
+    public function show(ContactSubmission $submission): JsonResponse
     {
-        // Auto-mark as read
-        if ($contactSubmission->status === 'new') {
-            $contactSubmission->markAsRead(auth()->id());
-        }
+        $this->authorize('view', $submission);
 
-        $contactSubmission->load('reader');
+        // Auto-mark as read
+        if ($submission->status === 'new') {
+            $submission->update(['status' => 'read']);
+        }
 
         return response()->json([
             'success' => true,
-            'data' => new ContactSubmissionResource($contactSubmission),
+            'data' => new ContactSubmissionResource($submission),
         ]);
     }
 
     /**
-     * Update submission status (Admin only)
+     * Update submission status (admin only)
      */
-    public function updateStatus(Request $request, ContactSubmission $contactSubmission): JsonResponse
+    public function updateStatus(Request $request, ContactSubmission $submission): JsonResponse
     {
+        $this->authorize('update', $submission);
+
         $request->validate([
             'status' => ['required', 'in:new,read,replied,archived,spam'],
-            'admin_notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        try {
-            $contactSubmission->update([
-                'status' => $request->status,
-                'admin_notes' => $request->admin_notes ?? $contactSubmission->admin_notes,
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'data' => new ContactSubmissionResource($contactSubmission->fresh()),
-                'message' => __('contact.status_updated'),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update status: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Mark as spam (Admin only)
-     */
-    public function markAsSpam(ContactSubmission $contactSubmission): JsonResponse
-    {
-        try {
-            $this->contactService->markAsSpam($contactSubmission);
-
-            return response()->json([
-                'success' => true,
-                'message' => __('contact.marked_spam'),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to mark as spam: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Delete submission (Admin only)
-     */
-    public function destroy(ContactSubmission $contactSubmission): JsonResponse
-    {
-        try {
-            $contactSubmission->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => __('contact.deleted'),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete submission: ' . $e->getMessage(),
-            ], 500);
-        }
-    }
-
-    /**
-     * Get statistics (Admin only)
-     */
-    public function statistics(): JsonResponse
-    {
-        $stats = $this->contactService->getStatistics();
+        $updated = $this->contactService->updateStatus($submission, $request->status);
 
         return response()->json([
             'success' => true,
-            'data' => $stats,
+            'message' => 'Status updated successfully',
+            'data' => new ContactSubmissionResource($updated),
         ]);
+    }
+
+    /**
+     * Delete submission (admin only)
+     */
+    public function destroy(ContactSubmission $submission): JsonResponse
+    {
+        $this->authorize('delete', $submission);
+
+        $submission->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Submission deleted successfully',
+        ]);
+    }
+
+    /**
+     * Bulk update status (admin only)
+     */
+    public function bulkUpdateStatus(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', ContactSubmission::class);
+
+        $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer', 'exists:contact_submissions,id'],
+            'status' => ['required', 'in:new,read,replied,archived,spam'],
+        ]);
+
+        $count = $this->contactService->bulkUpdateStatus($request->ids, $request->status);
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} submissions updated successfully",
+        ]);
+    }
+
+    /**
+     * Bulk delete (admin only)
+     */
+    public function bulkDelete(Request $request): JsonResponse
+    {
+        $this->authorize('viewAny', ContactSubmission::class);
+
+        $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['integer', 'exists:contact_submissions,id'],
+        ]);
+
+        $count = $this->contactService->bulkDelete($request->ids);
+
+        return response()->json([
+            'success' => true,
+            'message' => "{$count} submissions deleted successfully",
+        ]);
+    }
+
+    /**
+     * Export submissions (admin only)
+     */
+    public function export(Request $request)
+    {
+        $this->authorize('viewAny', ContactSubmission::class);
+
+        $filters = $request->only(['status', 'search', 'date_from', 'date_to', 'language', 'subject']);
+        $submissions = $this->contactService->getSubmissions($filters, 10000)->items();
+
+        $filename = 'contact-submissions-' . now()->format('Y-m-d-His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ];
+
+        $callback = function () use ($submissions) {
+            $file = fopen('php://output', 'w');
+            
+            // Headers
+            fputcsv($file, ['ID', 'Name', 'Email', 'Phone', 'Subject', 'Message', 'Status', 'Language', 'IP Address', 'Created At']);
+
+            // Data
+            foreach ($submissions as $submission) {
+                fputcsv($file, [
+                    $submission->id,
+                    $submission->name,
+                    $submission->email,
+                    $submission->phone,
+                    $submission->subject,
+                    $submission->message,
+                    $submission->status,
+                    $submission->language,
+                    $submission->ip_address,
+                    $submission->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

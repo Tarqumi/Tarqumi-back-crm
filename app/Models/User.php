@@ -131,6 +131,11 @@ class User extends Authenticatable
                ($this->is_founder && $this->founder_role === FounderRole::CTO);
     }
 
+    public function getCanDeleteContactSubmissionsAttribute(): bool
+    {
+        return $this->is_admin;
+    }
+
     /**
      * Get all permissions for the authenticated user.
      * Used by PermissionsController to return to frontend.
