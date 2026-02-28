@@ -22,7 +22,7 @@ class UpdateClientRequest extends FormRequest
                 'sometimes',
                 'string',
                 'min:2',
-                'max:100',
+                'max:80',
                 // Default client name cannot be changed
                 function ($attribute, $value, $fail) use ($client) {
                     if ($client->is_default && $value !== $client->name) {
@@ -33,7 +33,7 @@ class UpdateClientRequest extends FormRequest
             'email' => [
                 'sometimes',
                 'email',
-                'max:255',
+                'max:100',
                 Rule::unique('clients', 'email')->ignore($clientId),
                 // Default client email cannot be changed
                 function ($attribute, $value, $fail) use ($client) {
@@ -42,13 +42,13 @@ class UpdateClientRequest extends FormRequest
                     }
                 },
             ],
-            'company_name' => ['nullable', 'string', 'max:150'],
+            'company_name' => ['nullable', 'string', 'max:100'],
             'phone' => ['nullable', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:500'],
-            'website' => ['nullable', 'url', 'max:255'],
+            'address' => ['nullable', 'string', 'max:200'],
+            'website' => ['nullable', 'url', 'max:150'],
             'industry' => ['nullable', 'string', 'max:100'],
-            'notes' => ['nullable', 'string', 'max:5000'],
+            'notes' => ['nullable', 'string', 'max:1000'],
             'is_active' => [
                 'boolean',
                 // Default client must remain active

@@ -104,11 +104,13 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'update.last.active'])->group(f
 
     // Client Management (Admin, Super Admin)
     Route::middleware('role:super_admin,admin')->group(function () {
+        Route::get('/clients/export', [ClientController::class, 'export']);
         Route::get('/clients', [ClientController::class, 'index']);
         Route::post('/clients', [ClientController::class, 'store']);
         Route::get('/clients/{client}', [ClientController::class, 'show']);
         Route::put('/clients/{client}', [ClientController::class, 'update']);
         Route::patch('/clients/{client}', [ClientController::class, 'update']);
+        Route::patch('/clients/{client}/status', [ClientController::class, 'toggleStatus']);
         Route::delete('/clients/{client}', [ClientController::class, 'destroy']);
         Route::post('/clients/{client}/restore', [ClientController::class, 'restore'])->withTrashed();
     });

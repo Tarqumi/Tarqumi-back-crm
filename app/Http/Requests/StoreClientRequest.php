@@ -14,15 +14,15 @@ class StoreClientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'min:2', 'max:100'],
-            'email' => ['required', 'email', 'max:255', 'unique:clients,email'],
-            'company_name' => ['nullable', 'string', 'max:150'],
+            'name' => ['required', 'string', 'min:2', 'max:80'],
+            'email' => ['required', 'email', 'max:100', 'unique:clients,email'],
+            'company_name' => ['nullable', 'string', 'max:100'],
             'phone' => ['nullable', 'string', 'max:20'],
             'whatsapp' => ['nullable', 'string', 'max:20'],
-            'address' => ['nullable', 'string', 'max:500'],
-            'website' => ['nullable', 'url', 'max:255'],
+            'address' => ['nullable', 'string', 'max:200'],
+            'website' => ['nullable', 'url', 'max:150'],
             'industry' => ['nullable', 'string', 'max:100'],
-            'notes' => ['nullable', 'string', 'max:5000'],
+            'notes' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['boolean'],
         ];
     }
@@ -32,13 +32,16 @@ class StoreClientRequest extends FormRequest
         return [
             'name.required' => 'Client name is required',
             'name.min' => 'Client name must be at least 2 characters',
-            'name.max' => 'Client name cannot exceed 100 characters',
+            'name.max' => 'Client name cannot exceed 80 characters',
             'email.required' => 'Email is required',
             'email.email' => 'Please enter a valid email address',
+            'email.max' => 'Email cannot exceed 100 characters',
             'email.unique' => 'A client with this email already exists',
-            'company_name.max' => 'Company name cannot exceed 150 characters',
+            'company_name.max' => 'Company name cannot exceed 100 characters',
+            'address.max' => 'Address cannot exceed 200 characters',
             'website.url' => 'Please enter a valid URL',
-            'notes.max' => 'Notes cannot exceed 5000 characters',
+            'website.max' => 'Website URL cannot exceed 150 characters',
+            'notes.max' => 'Notes cannot exceed 1000 characters',
         ];
     }
 

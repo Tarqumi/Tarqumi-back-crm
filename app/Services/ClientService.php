@@ -76,8 +76,9 @@ class ClientService
         }
 
         // Filter by has_projects
-        if (isset($filters['has_projects'])) {
-            if ($filters['has_projects']) {
+        if (isset($filters['has_projects']) && $filters['has_projects'] !== 'all') {
+            $hasProjects = in_array($filters['has_projects'], ['yes', 'true', '1', 1, true], true);
+            if ($hasProjects) {
                 $query->has('projects');
             } else {
                 $query->doesntHave('projects');
@@ -96,5 +97,51 @@ class ClientService
         $perPage = $filters['per_page'] ?? 20;
         
         return $query->withCount('projects')->paginate($perPage);
+    }
+
+    public function getClientsForExport(array $filters)
+    {
+        $query = Client::query();
+
+        // Search
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('company_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by status
+        if (!empty($filters['status'])) {
+            $query->where('is_active', $filters['status'] === 'active');
+        }
+
+        // Filter by industry
+        if (!empty($filters['industry'])) {
+            $query->where('industry', $filters['industry']);
+        }
+
+        // Filter by has_projects
+        if (isset($filters['has_projects']) && $filters['has_projects'] !== 'all') {
+            $hasProjects = in_array($filters['has_projects'], ['yes', 'true', '1', 1, true], true);
+            if ($hasProjects) {
+                $query->has('projects');
+            } else {
+                $query->doesntHave('projects');
+            }
+        }
+
+        // Sorting
+        $sortBy = $filters['sort_by'] ?? 'name';
+        $sortOrder = $filters['sort_order'] ?? 'asc';
+        
+        // Default client always first
+        $query->orderBy('is_default', 'desc')
+              ->orderBy($sortBy, $sortOrder);
+
+        return $query->withCount('projects')->get();
     }
 }
