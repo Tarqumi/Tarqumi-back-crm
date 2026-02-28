@@ -62,10 +62,31 @@ class UpdateTeamMemberRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // Sanitize name to prevent XSS
+        if ($this->has('name')) {
+            $this->merge([
+                'name' => strip_tags($this->name),
+            ]);
+        }
+
         // Normalize email to lowercase
         if ($this->has('email')) {
             $this->merge([
                 'email' => strtolower($this->email),
+            ]);
+        }
+
+        // Sanitize department to prevent XSS
+        if ($this->has('department')) {
+            $this->merge([
+                'department' => strip_tags($this->department),
+            ]);
+        }
+
+        // Sanitize job_title to prevent XSS
+        if ($this->has('job_title')) {
+            $this->merge([
+                'job_title' => strip_tags($this->job_title),
             ]);
         }
     }

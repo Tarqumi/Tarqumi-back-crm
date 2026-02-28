@@ -110,17 +110,34 @@ class TeamService
         return $user->fresh();
     }
 
-    public function deleteTeamMember(User $user): bool
+    public function deleteTeamMember(User $user, ?int $newManagerId = null): bool
     {
         // Check if user is project manager
         $managedProjects = $user->managedProjects()->count();
         
         if ($managedProjects > 0) {
-            throw new \Exception("Cannot delete team member. They are managing {$managedProjects} projects. Please reassign projects first.");
+            // If no new manager provided, throw exception with project count
+            if ($newManagerId === null) {
+                throw new \Exception("Cannot delete team member. They are managing {$managedProjects} project(s). Please reassign projects first.");
+            }
+
+            // Validate new manager exists and is active
+            $newManager = User::findOrFail($newManagerId);
+            if (!$newManager->is_active) {
+                throw new \Exception("Cannot reassign projects to an inactive team member.");
+            }
+
+            // Reassign all projects to new manager
+            $this->reassignProjects($user, $newManager);
         }
 
         // Soft delete
         return $user->delete();
+    }
+
+    public function deleteTeamMemberWithReassignment(User $user, int $newManagerId): bool
+    {
+        return $this->deleteTeamMember($user, $newManagerId);
     }
 
     public function reassignProjects(User $oldManager, User $newManager): int

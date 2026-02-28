@@ -44,10 +44,31 @@ class StoreClientRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        // Sanitize name to prevent XSS
+        if ($this->has('name')) {
+            $this->merge([
+                'name' => strip_tags($this->name),
+            ]);
+        }
+
         // Normalize email to lowercase
         if ($this->has('email')) {
             $this->merge([
                 'email' => strtolower($this->email),
+            ]);
+        }
+
+        // Sanitize company_name to prevent XSS
+        if ($this->has('company_name')) {
+            $this->merge([
+                'company_name' => strip_tags($this->company_name),
+            ]);
+        }
+
+        // Sanitize notes to prevent XSS
+        if ($this->has('notes')) {
+            $this->merge([
+                'notes' => strip_tags($this->notes),
             ]);
         }
 

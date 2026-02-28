@@ -4,6 +4,7 @@ use App\Http\Middleware\CanEditLandingPage;
 use App\Http\Middleware\CanViewContactSubmissions;
 use App\Http\Middleware\FounderRoleMiddleware;
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\UpdateLastActive;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -17,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Global middleware
+        $middleware->append(SecurityHeaders::class);
+        
+        // Middleware aliases
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'founder.role' => FounderRoleMiddleware::class,

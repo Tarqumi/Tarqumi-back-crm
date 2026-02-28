@@ -3,14 +3,17 @@
 namespace App\Services;
 
 use App\Models\BlogPost;
+use App\Traits\ValidatesFileUploads;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
+use Mews\Purifier\Facades\Purifier;
 
 class BlogPostService
 {
+    use ValidatesFileUploads;
     public function __construct(
         private RevalidationService $revalidationService
     ) {}
@@ -18,6 +21,14 @@ class BlogPostService
     public function createPost(array $data): BlogPost
     {
         return DB::transaction(function () use ($data) {
+            // Sanitize rich text content to prevent XSS
+            if (isset($data['content_ar'])) {
+                $data['content_ar'] = Purifier::clean($data['content_ar']);
+            }
+            if (isset($data['content_en'])) {
+                $data['content_en'] = Purifier::clean($data['content_en']);
+            }
+
             // Handle featured image upload
             if (isset($data['featured_image']) && $data['featured_image'] instanceof UploadedFile) {
                 $data['featured_image'] = $this->uploadFeaturedImage($data['featured_image']);
@@ -50,6 +61,14 @@ class BlogPostService
     public function updatePost(BlogPost $post, array $data): BlogPost
     {
         return DB::transaction(function () use ($post, $data) {
+            // Sanitize rich text content to prevent XSS
+            if (isset($data['content_ar'])) {
+                $data['content_ar'] = Purifier::clean($data['content_ar']);
+            }
+            if (isset($data['content_en'])) {
+                $data['content_en'] = Purifier::clean($data['content_en']);
+            }
+
             // Handle featured image upload
             if (isset($data['featured_image']) && $data['featured_image'] instanceof UploadedFile) {
                 // Delete old image
@@ -163,8 +182,8 @@ class BlogPostService
 
     private function uploadFeaturedImage(UploadedFile $file): string
     {
-        // Validate file
-        $this->validateImage($file);
+        // Validate file using trait
+        $this->validateImageUpload($file, 20);
 
         // Generate unique filename
         $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
@@ -177,15 +196,7 @@ class BlogPostService
 
     private function validateImage(UploadedFile $file): void
     {
-        // Max 20MB
-        if ($file->getSize() > 20 * 1024 * 1024) {
-            throw new \Exception('Image size must not exceed 20MB');
-        }
-
-        // Only images
-        $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!in_array($file->getMimeType(), $allowedMimes)) {
-            throw new \Exception('Only JPEG, PNG, GIF, and WebP images are allowed');
-        }
+        // Deprecated: Use validateImageUpload from trait instead
+        $this->validateImageUpload($file, 20);
     }
 }

@@ -10,11 +10,15 @@ use App\Models\SeoSetting;
 use App\Models\SiteSetting;
 use App\Models\SocialLink;
 use App\Models\PageContent;
+use App\Services\SeoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PublicApiController extends Controller
 {
+    public function __construct(
+        private SeoService $seoService
+    ) {}
     public function landing(Request $request): JsonResponse
     {
         $locale = $request->query('locale', 'en');
@@ -101,15 +105,25 @@ class PublicApiController extends Controller
 
         $post = BlogPost::where($field, $slug)
             ->where('status', 'published')
-            ->with(['author', 'categories', 'tags'])
+            ->with(['author', 'category', 'tags'])
             ->firstOrFail();
 
         // Increment views
         $post->increment('views');
 
+        // Generate SEO data
+        $jsonLd = $this->seoService->generateBlogPostJsonLd($post, $locale);
+        $ogTags = $this->seoService->generateBlogPostOgTags($post, $locale);
+
         return response()->json([
             'success' => true,
-            'data' => $post
+            'data' => [
+                'post' => $post,
+                'seo' => [
+                    'json_ld' => $jsonLd,
+                    'og_tags' => $ogTags,
+                ],
+            ],
         ]);
     }
 

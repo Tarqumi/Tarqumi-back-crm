@@ -53,4 +53,21 @@ class StoreProjectRequest extends FormRequest
             'currency.required_with' => 'Currency is required when budget is set',
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        // Sanitize name to prevent XSS
+        if ($this->has('name')) {
+            $this->merge([
+                'name' => strip_tags($this->name),
+            ]);
+        }
+
+        // Sanitize description to prevent XSS
+        if ($this->has('description')) {
+            $this->merge([
+                'description' => strip_tags($this->description),
+            ]);
+        }
+    }
 }
