@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\SiteSettingController;
 use App\Http\Controllers\Api\V1\SitemapController;
 use App\Http\Controllers\Api\V1\SocialLinkController;
 use App\Http\Controllers\Api\V1\TeamController;
+use App\Http\Controllers\Api\V1\PublicApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,19 +40,19 @@ Route::prefix('v1')->group(function () {
     Route::post('/password/reset', [PasswordResetController::class, 'reset'])
         ->middleware('throttle:5,1'); // Rate limit: 5 attempts per minute
     
-    // Landing Page
-    Route::get('/landing/showcase-projects', [LandingPageController::class, 'showcaseProjects']);
-    Route::get('/landing/company-info', [LandingPageController::class, 'companyInfo']);
-    
-    // Blog (Public - Published posts only)
-    Route::get('/blog/posts', [BlogPostController::class, 'index']);
-    Route::get('/blog/posts/{blogPost:slug_en}', [BlogPostController::class, 'show']);
-    
-    // Services (Public)
-    Route::get('/services', [ServiceController::class, 'index']);
-    
-    // Social Links (Public)
-    Route::get('/social-links', [SocialLinkController::class, 'index']);
+    // Public API for Frontend
+    Route::get('/public/landing', [PublicApiController::class, 'landing']);
+    Route::get('/public/services', [PublicApiController::class, 'services']);
+    Route::get('/public/projects', [PublicApiController::class, 'projects']);
+    Route::get('/public/projects/{id}', [PublicApiController::class, 'project']);
+    Route::get('/public/blog', [PublicApiController::class, 'blog']);
+    Route::get('/public/blog/{slug}', [PublicApiController::class, 'blogPost']);
+    Route::get('/public/blog/{postId}/related', [PublicApiController::class, 'relatedPosts']);
+    Route::get('/public/seo/{pageSlug}', [PublicApiController::class, 'seo']);
+    Route::get('/public/settings', [PublicApiController::class, 'settings']);
+    Route::get('/public/social-links', [PublicApiController::class, 'socialLinks']);
+    Route::get('/public/content/{pageSlug}', [PublicApiController::class, 'pageContent']);
+    Route::get('/public/about', [PublicApiController::class, 'about']);
     
     // Contact Form (Public with rate limiting)
     Route::post('/contact/submit', [ContactController::class, 'submit'])
