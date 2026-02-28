@@ -15,10 +15,10 @@ class StoreServiceRequest extends FormRequest
     {
         return [
             'icon' => ['nullable', 'string', 'max:255'],
-            'title_ar' => ['required', 'string', 'min:3', 'max:100'],
-            'title_en' => ['required', 'string', 'min:3', 'max:100'],
-            'description_ar' => ['required', 'string', 'min:10', 'max:1000'],
-            'description_en' => ['required', 'string', 'min:10', 'max:1000'],
+            'title_ar' => ['required', 'string', 'min:3', 'max:100', 'regex:/[\x{0600}-\x{06FF}]/u'],
+            'title_en' => ['required', 'string', 'min:3', 'max:100', 'regex:/[a-zA-Z]/'],
+            'description_ar' => ['required', 'string', 'min:10', 'max:1000', 'regex:/[\x{0600}-\x{06FF}]/u'],
+            'description_en' => ['required', 'string', 'min:10', 'max:1000', 'regex:/[a-zA-Z]/'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,gif,webp,svg', 'max:20480'],
             'order' => ['nullable', 'integer', 'min:0'],
             'is_active' => ['boolean'],
@@ -31,13 +31,19 @@ class StoreServiceRequest extends FormRequest
         return [
             'title_ar.required' => 'Arabic title is required',
             'title_ar.min' => 'Arabic title must be at least 3 characters',
+            'title_ar.regex' => 'Arabic title must contain Arabic characters',
             'title_en.required' => 'English title is required',
             'title_en.min' => 'English title must be at least 3 characters',
+            'title_en.regex' => 'English title must contain English characters',
             'description_ar.required' => 'Arabic description is required',
             'description_ar.min' => 'Arabic description must be at least 10 characters',
+            'description_ar.regex' => 'Arabic description must contain Arabic characters',
             'description_en.required' => 'English description is required',
             'description_en.min' => 'English description must be at least 10 characters',
+            'description_en.regex' => 'English description must contain English characters',
             'image.max' => 'Image must not exceed 20MB',
+            'is_active.boolean' => 'The is active field must be true or false',
+            'show_on_home.boolean' => 'The show on home field must be true or false',
         ];
     }
 }
